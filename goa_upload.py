@@ -7,7 +7,9 @@ Created: 2019-03-28
 Last Modified: 2019-04-02
 
 Jira Ticket: TELLIC-523 - ETL the OMIM, Gene Ontology, +1Data
-GOAL: Get the Gene Ongoloty into BigQuery
+
+GOAL: Put the Gene Ontology files in GCS
+
 Description:
 This script downloads .gz files from:
 http://current.geneontology.org/annotations/index.html
