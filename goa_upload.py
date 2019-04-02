@@ -69,6 +69,7 @@ def create_session(project, bucket_name):
     """Create GCS client"""
 
     LOGGER.info("Creating GCS client")
+    # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'tellic-dev-2807ffb4dd7f.json'
     client = storage.Client(project=project)
     bucket = client.get_bucket(bucket_name)
 
