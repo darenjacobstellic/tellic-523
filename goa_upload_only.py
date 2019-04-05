@@ -4,18 +4,17 @@
 
 Author: Daren Jacobs
 Created: 2019-03-28
-Last Modified: 2019-04-02
+Last Modified: 2019-04-05
 
 Jira Ticket: TELLIC-523 - ETL the OMIM, Gene Ontology, +1Data
-
-GOAL: Put the Gene Ontology files in GCS
 
 Description:
 This script downloads .gz files from:
 http://current.geneontology.org/annotations/index.html
 and uploads the extracted files to:
 https://console.cloud.google.com/storage/browser/tellic-dev/geneontology
-
+That's all this does and should not be used as goa.py downloads gz files
+and puts the data in BigQuery
 """
 
 import gzip
@@ -110,7 +109,8 @@ def goa_file_extract(url, bucket):
 
     # check if file has been uploaded
     if my_dir + '/' + filename[:-3] in blob_list:
-        LOGGER.info("File already exists, skipping download: %s", filename[:-3])
+        LOGGER.info("File already exists, skipping download: %s",
+                    filename[:-3])
 
     # Download, extract, upload to GCS, and delete local temp files
     else:
@@ -166,5 +166,5 @@ def run():
 if __name__ == '__main__':
     PROJECT = 'tellic-dev'
     BUCKET_NAME = 'tellic-dev'
-    SUB_DIR = 'geneontology'
+    SUB_DIR = 'GeneOntology'
     run()
