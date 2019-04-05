@@ -169,11 +169,11 @@ def main(url, num_lines):
     # Set a client session and get the bucket
     bucket = create_session(PROJECT, BUCKET_NAME)
 
+    my_dir = SUB_DIR
     filename = url.split('/')[-1]
 
     # Output path for the extacted file
     temp_dest = tempfile.mkdtemp('_go') + '/' + filename
-    my_dir = SUB_DIR
     blob_list = get_bucket_info(bucket, my_dir)
     LOGGER.info("HERE IS THE BLOB_LIST: %s", blob_list)
 
@@ -229,6 +229,6 @@ if __name__ == '__main__':
     DATASET = 'GeneOntology'
     TABLE = 'GAF_files'
     DESTINATION_TABLE = (DATASET + '.' + TABLE)
-    NUM_LINES = 99999
+    NUM_LINES = 999999
 
     main(GOA_URL, NUM_LINES)
