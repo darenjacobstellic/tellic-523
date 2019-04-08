@@ -125,6 +125,10 @@ def create_text_block(filename, temp_dest, num_lines):
     scratch_file = open(this_file, 'a')
     with gzip.open(temp_dest) as f_in:
         for line in f_in:
+            if line_count > num_lines:
+                scratch_file.close()
+                break
+
             this_line = line.decode('utf-8')
             if this_line[0] == '!':
                 continue
@@ -132,9 +136,6 @@ def create_text_block(filename, temp_dest, num_lines):
             scratch_file.write(this_line)
             line_count += 1
 
-            if line_count > num_lines:
-                scratch_file.close()
-                break
 
     return this_file
 
@@ -199,7 +200,7 @@ def main(url, num_lines):
         to_go = 0
 
         # I want the countdown numbers to look nice
-        locale.setlocale(locale.LC_ALL, 'en_US')
+        locale.setlocale(locale.LC_ALL, 'en_US.utf8')
         while lines_written < total_lines:
             current_file = create_text_block(filename[:-3], temp_dest,
                                              num_lines)
