@@ -124,7 +124,6 @@ def extract_gz_file(filename, temp_dest):
             total_lines = len(open(filename).readlines())
 
     total_lines = total_lines - bad_lines
-    LOGGER.debug("TOTAL LINES: %d", total_lines)
     return total_lines, filename
 
 
@@ -185,7 +184,6 @@ def main():
     bucket = create_session(PROJECT, BUCKET_NAME)
 
     filename = url.split('/')[-1]
-    LOGGER.debug("FILE NAME: %s", filename)
 
     # Temp location for gz file
     temp_dest = tempfile.mkdtemp('_go') + '/' + filename
@@ -215,6 +213,8 @@ def main():
         else:
             num_lines = NUM_LINES
 
+        LOGGER.debug("TOTAL LINES: %d", total_lines)
+        LOGGER.debug("NUM LINES: %d", num_lines)
         lines_written = 0
         to_go = 0
         locale.setlocale(locale.LC_ALL, 'en_US.utf8')
@@ -227,7 +227,6 @@ def main():
                     num_lines = to_go
 
                 current_file = create_text_block(f_in, num_lines)
-                LOGGER.debug("CURRENT_FILE: %s", current_file)
                 lines_written += len(open(current_file).readlines())
                 load_lines(current_file)
 
