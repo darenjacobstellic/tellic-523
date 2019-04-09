@@ -217,7 +217,7 @@ def main():
 
         lines_written = 0
         to_go = 0
-        locale.setlocale(locale.LC_ALL, 'en_US') # I want the numbers to look nice
+        locale.setlocale(locale.LC_ALL, 'en_US.utf8')
 
         # create while-loop that writes extracted file in chunks
         with open(extracted_file) as f_in:
