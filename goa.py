@@ -102,28 +102,28 @@ def copy_to_bucket(bucket, subdir, filename):
 
 def get_bad_lines(temp_dest):
     """ Get lines that stat with !"""
-    bad_lines = 0
+    ignore_lines = 0
     with gzip.open(temp_dest) as f_in:
         for line in f_in:
             this_line = line.decode('utf-8')
             if this_line[0] == '!':
-                bad_lines += 1
+                ignore_lines += 1
                 continue
 
-    return bad_lines
+    return ignore_lines
 
 
 def extract_gz_file(filename, temp_dest):
     """Extact and return the gz file and number of lines
     """
 
-    bad_lines = get_bad_lines(temp_dest)
+    ignore_lines = get_bad_lines(temp_dest)
     with gzip.open(temp_dest) as f_in:
         with open(filename, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
             total_lines = len(open(filename).readlines())
 
-    total_lines = total_lines - bad_lines
+    total_lines = total_lines - ignore_lines
     return total_lines, filename
 
 
@@ -138,6 +138,7 @@ def create_text_block(f_in, num_lines):
         if line_count > num_lines:
             break
 
+        # skip the line if it starts with and !
         if line[0] == '!':
             continue
 
@@ -172,42 +173,42 @@ def load_lines(file_name):
 @timer
 def main():
     """
-    Create a GCS client and get a bucket object,
-    Download and extract the .gz file from the URL,
-    Check if if the file exists in GCS
-    and delete local temp files
+    Create a GCS client and get a bucket object, download and extract the .gz
+    file from the URL, check if the file exists in GCS, copy chunks of the
+    extracted file to a text block, create a csv from the text block, write the
+    csv to BQ, and delete local temp files
     """
     # Set url
     url = GOA_URL
-
-    # Set a client session and get the bucket
-    bucket = create_session(PROJECT, BUCKET_NAME)
-
+    # Get name of gz file
     filename = url.split('/')[-1]
-
     # Temp location for gz file
     temp_dest = tempfile.mkdtemp('_go') + '/' + filename
+
+    # Create a client session and get the bucket object
+    bucket = create_session(PROJECT, BUCKET_NAME)
+
+    # Get list of objects in the bucket
     my_dir = SUB_DIR
     blob_list = get_bucket_info(bucket, my_dir)
     LOGGER.info("GCS Bucket BLOB_LIST: %s", blob_list)
 
-    # check if file is in GCS
+    # check if file is already in GCS
     if my_dir + '/' + filename[:-3] in blob_list:
         LOGGER.info("File already exists, skipping download: %s", filename[:-3])
-
     # Download the gz file
     else:
         LOGGER.info("Downloading file to %s", temp_dest)
         urllib.request.urlcleanup()
         urllib.request.urlretrieve(url, temp_dest)
 
-        # Get extracted file & total number of lines in extracted file
+        # Get extracted file object & number of lines in the extracted file
         total_lines, extracted_file = extract_gz_file(filename[:-3], temp_dest)
 
-        # GCS Copy
+        # Copy gz file to GCS
         copy_to_bucket(bucket, my_dir, extracted_file)
 
-        # Set up while loop
+        # Set up variables for the while loop
         if total_lines < NUM_LINES:
             num_lines = total_lines
         else:
@@ -238,8 +239,6 @@ def main():
 
         os.remove(temp_dest)
         os.remove(extracted_file)
-
-
 
 if __name__ == '__main__':
 
