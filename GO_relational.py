@@ -28,7 +28,8 @@ def write_go_to_tsv(path_name):
     dataframe = pd.DataFrame(rows)
     dataframe[['id', 'name', 'namespace', 'def']].to_csv(path_name, sep='\t',
                                                          index=False)
-    dataframe.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT, if_exists='append')
+    dataframe.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT,
+                     if_exists='replace')
 
 
 if __name__ == '__main__':

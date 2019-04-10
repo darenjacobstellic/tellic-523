@@ -29,7 +29,7 @@ def write_go_to_tsv(path_name, my_csv):
     column_names = ['id', 'name', 'namespace', 'def']
     dataframe[['id', 'name', 'namespace', 'def']].to_csv(path_name, sep='\t', index=False)
 
-    out_df = pd.read_csv(path_name, delimiter='\t', names=column_names)
+    out_df = pd.read_csv(path_name, delimiter='\t', header=0, names=column_names)
     out_df.to_csv(my_csv, sep='\t', index=False)
     out_df.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT,
                   if_exists='replace')
