@@ -55,16 +55,6 @@ if LOGGER.hasHandlers():
 LOGGER.addHandler(CONSOLE_HANDLER)
 
 
-def create_session(project, bucket_name):
-    """Create GCS client"""
-
-    LOGGER.info("Creating GCS client")
-    client = storage.Client(project=project)
-    bucket = client.get_bucket(bucket_name)
-
-    return bucket
-
-
 def timer(func):
     """A timer for function"""
 
@@ -77,6 +67,16 @@ def timer(func):
         return result
 
     return wrapper
+
+
+def create_session(project, bucket_name):
+    """Create GCS client"""
+
+    LOGGER.info("Creating GCS client")
+    client = storage.Client(project=project)
+    bucket = client.get_bucket(bucket_name)
+
+    return bucket
 
 
 def get_bucket_info(upload_bucket, subdir):
@@ -124,6 +124,7 @@ def extract_gz_file(filename, temp_dest):
             total_lines = len(open(filename).readlines())
 
     total_lines = total_lines - ignore_lines
+
     return total_lines, filename
 
 
@@ -165,7 +166,8 @@ def load_lines(file_name):
                             verbose=True, dtype={'annotation_extension': str})
 
     dataframe.to_csv('new.csv', encoding='utf-8', index=False)
-    dataframe.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT, if_exists='append')
+    dataframe.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT,
+                     if_exists='append')
 
     os.remove('new.csv')
 
@@ -195,7 +197,8 @@ def main():
 
     # check if file is already in GCS
     if my_dir + '/' + filename[:-3] in blob_list:
-        LOGGER.info("File already exists, skipping download: %s", filename[:-3])
+        LOGGER.info("File already exists, skipping download: %s",
+                    filename[:-3])
     # Download the gz file
     else:
         LOGGER.info("Downloading file to %s", temp_dest)
@@ -236,13 +239,13 @@ def main():
                             lines_written, total_lines, countdown)
                 os.remove(current_file)
 
-
         os.remove(temp_dest)
         os.remove(extracted_file)
 
+
 if __name__ == '__main__':
 
-    ## List of gz files to process
+    # List of gz files to process
     # http://current.geneontology.org/annotations/goa_human.gaf.gz
     # http://current.geneontology.org/annotations/goa_human_complex.gaf.gz
     # http://current.geneontology.org/annotations/goa_human_isoform.gaf.gz
