@@ -214,8 +214,8 @@ def main():
         else:
             num_lines = NUM_LINES
 
-        LOGGER.debug("TOTAL LINES: %d", total_lines)
-        LOGGER.debug("NUM LINES: %d", num_lines)
+        LOGGER.info("TOTAL LINES: %d", total_lines)
+        LOGGER.info("NUM LINES: %d", num_lines)
         lines_written = 0
         to_go = 0
         locale.setlocale(locale.LC_ALL, 'en_US.utf8')
@@ -231,6 +231,7 @@ def main():
                 lines_written += len(open(current_file).readlines())
                 load_lines(current_file)
 
+                # Output some information about current status
                 countdown = locale.format_string("%d", to_go, grouping=True)
                 LOGGER.info("%d lines of %d written\n %s lines to go",
                             lines_written, total_lines, countdown)
