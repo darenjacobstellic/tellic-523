@@ -55,6 +55,16 @@ if LOGGER.hasHandlers():
 LOGGER.addHandler(CONSOLE_HANDLER)
 
 
+def create_session(project, bucket_name):
+    """Create GCS client"""
+
+    LOGGER.info("Creating GCS client")
+    client = storage.Client(project=project)
+    bucket = client.get_bucket(bucket_name)
+
+    return bucket
+
+
 def timer(func):
     """A timer for function"""
 
@@ -67,16 +77,6 @@ def timer(func):
         return result
 
     return wrapper
-
-
-def create_session(project, bucket_name):
-    """Create GCS client"""
-
-    LOGGER.info("Creating GCS client")
-    client = storage.Client(project=project)
-    bucket = client.get_bucket(bucket_name)
-
-    return bucket
 
 
 def get_bucket_info(upload_bucket, subdir):
@@ -124,8 +124,7 @@ def extract_gz_file(filename, temp_dest):
             total_lines = len(open(filename).readlines())
 
     total_lines = total_lines - ignore_lines
-
-    return total_lines, filename
+    return filename, total_lines
 
 
 def create_text_block(f_in, num_lines):
@@ -160,14 +159,13 @@ def load_lines(file_name):
                     'aspect', 'db_object_name', 'db_object_synonym',
                     'db_object_type', 'taxon', 'date', 'assigned_by',
                     'annotation_extension']
+
     dataframe = pd.read_csv(csv_file, delimiter='\t', index_col=False,
                             names=column_names, error_bad_lines=False,
                             warn_bad_lines=True, skip_blank_lines=True,
-                            verbose=True, dtype={'annotation_extension': str})
-
+                            verbose=True)
     dataframe.to_csv('new.csv', encoding='utf-8', index=False)
-    dataframe.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT,
-                     if_exists='append')
+    dataframe.to_gbq(destination_table=DESTINATION_TABLE, project_id=PROJECT, if_exists='append')
 
     os.remove('new.csv')
 
@@ -176,13 +174,13 @@ def load_lines(file_name):
 def main():
     """
     Create a GCS client and get a bucket object, download and extract the .gz
-    file from the URL, check if the file exists in GCS, copy chunks of the
-    extracted file to a text block, create a csv from the text block, write the
-    csv to BQ, and delete local temp files
+    file from the URL, check if the file exists in GCS, upload the file to GCS,
+    copy chunks of the extracted file to a text block, create a csv from the
+    text block, write the csv to BQ, and delete local temp files
     """
     # Set url
     url = GOA_URL
-    # Get name of gz file
+    # Set the name of the gz file
     filename = url.split('/')[-1]
     # Temp location for gz file
     temp_dest = tempfile.mkdtemp('_go') + '/' + filename
@@ -197,8 +195,7 @@ def main():
 
     # check if file is already in GCS
     if my_dir + '/' + filename[:-3] in blob_list:
-        LOGGER.info("File already exists, skipping download: %s",
-                    filename[:-3])
+        LOGGER.info("File already exists, skipping download: %s", filename[:-3])
     # Download the gz file
     else:
         LOGGER.info("Downloading file to %s", temp_dest)
@@ -206,7 +203,7 @@ def main():
         urllib.request.urlretrieve(url, temp_dest)
 
         # Get extracted file object & number of lines in the extracted file
-        total_lines, extracted_file = extract_gz_file(filename[:-3], temp_dest)
+        extracted_file, total_lines = extract_gz_file(filename[:-3], temp_dest)
 
         # Copy gz file to GCS
         copy_to_bucket(bucket, my_dir, extracted_file)
@@ -239,13 +236,13 @@ def main():
                             lines_written, total_lines, countdown)
                 os.remove(current_file)
 
+
         os.remove(temp_dest)
         os.remove(extracted_file)
 
-
 if __name__ == '__main__':
 
-    # List of gz files to process
+    ## List of gz files to process
     # http://current.geneontology.org/annotations/goa_human.gaf.gz
     # http://current.geneontology.org/annotations/goa_human_complex.gaf.gz
     # http://current.geneontology.org/annotations/goa_human_isoform.gaf.gz
