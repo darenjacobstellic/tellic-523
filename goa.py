@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Copyright 2019 tellic LLC. All rights reserved.
+"""
+Copyright 2019 tellic LLC. All rights reserved.
 
 Author: Daren Jacobs
 Created: 2019-03-28
@@ -13,9 +14,9 @@ GOAL: Put the Gene Ontology files in GCS
 Description:
 This script downloads .gz files from:
 http://current.geneontology.org/annotations/index.html
-and uploads the extracted files to:
+uploads the extracted files to:
 https://console.cloud.google.com/storage/browser/tellic-dev/geneontology
-and lodads ddata to:
+loads data to:
 https://console.cloud.google.com/bigquery?project=tellic-dev&organizationId=23262195837&p=tellic-dev&d=GeneOntology&t=GAF_files&page=table
 """
 
@@ -66,7 +67,7 @@ def create_session(project, bucket_name):
 
 
 def timer(func):
-    """A timer for function"""
+    """Times how long a function takes to run"""
 
     def wrapper(*args, **kwargs):
         start = time.time()
@@ -101,7 +102,7 @@ def copy_to_bucket(bucket, subdir, filename):
 
 
 def get_bad_lines(temp_dest):
-    """ Get lines that stat with !"""
+    """Get lines that start with !"""
     ignore_lines = 0
     with gzip.open(temp_dest) as f_in:
         for line in f_in:
@@ -114,8 +115,7 @@ def get_bad_lines(temp_dest):
 
 
 def extract_gz_file(filename, temp_dest):
-    """Extact and return the gz file and number of lines
-    """
+    """Extact the gz file, return the file and number of lines"""
 
     ignore_lines = get_bad_lines(temp_dest)
     with gzip.open(temp_dest) as f_in:
@@ -128,7 +128,7 @@ def extract_gz_file(filename, temp_dest):
 
 
 def create_text_block(f_in, num_lines):
-    """Write extracted file to text file in chunks of num_lines"""
+    """Write extracted file's text to file in chunks of num_lines"""
 
     this_file = 'text_block.txt'
     scratch_file = open(this_file, 'w+')
@@ -149,7 +149,7 @@ def create_text_block(f_in, num_lines):
 
 
 def load_lines(file_name):
-    """Load text block into Big Query"""
+    """Write text block to Big Query table"""
     LOGGER.info("Writing text block to BigQuery")
 
     # create article CSV
@@ -173,16 +173,17 @@ def load_lines(file_name):
 @timer
 def main():
     """
-    Create a GCS client and get a bucket object, download and extract the .gz
-    file from the URL, check if the file exists in GCS, upload the file to GCS,
-    copy chunks of the extracted file to a text block, create a csv from the
-    text block, write the csv to BQ, and delete local temp files
+    Create a GCS client, get a bucket object, download and extract the .gz
+    file from the URL, check if the .gz file exists in GCS, upload new file to
+    GCS, copy chunks of the extracted file to a text block, create a csv from
+    the text block, write the csv to a BQ table, and delete local temp files
     """
+
     # Set url
     url = GOA_URL
     # Set the name of the gz file
     filename = url.split('/')[-1]
-    # Temp location for gz file
+    # Set temp location for gz file
     temp_dest = tempfile.mkdtemp('_go') + '/' + filename
 
     # Create a client session and get the bucket object
@@ -193,7 +194,7 @@ def main():
     blob_list = get_bucket_info(bucket, my_dir)
     LOGGER.info("GCS Bucket BLOB_LIST: %s", blob_list)
 
-    # check if file is already in GCS
+    # Check if file is already in GCS
     if my_dir + '/' + filename[:-3] in blob_list:
         LOGGER.info("File already exists, skipping download: %s", filename[:-3])
     # Download the gz file
@@ -202,7 +203,7 @@ def main():
         urllib.request.urlcleanup()
         urllib.request.urlretrieve(url, temp_dest)
 
-        # Get extracted file object & number of lines in the extracted file
+        # Get extracted file object and number of lines in the extracted file
         extracted_file, total_lines = extract_gz_file(filename[:-3], temp_dest)
 
         # Copy gz file to GCS
@@ -243,7 +244,7 @@ def main():
 
 if __name__ == '__main__':
 
-    ## List of gz files to process
+    ## List of gz files to process ##
     # http://current.geneontology.org/annotations/goa_human.gaf.gz
     # http://current.geneontology.org/annotations/goa_human_complex.gaf.gz
     # http://current.geneontology.org/annotations/goa_human_isoform.gaf.gz
