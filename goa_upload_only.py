@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Copyright 2019 tellic LLC. All rights reserved.
+"""
+Copyright 2019 tellic LLC. All rights reserved.
 
 Author: Daren Jacobs
 Created: 2019-03-28
@@ -53,7 +54,7 @@ LOGGER.addHandler(CONSOLE_HANDLER)
 
 
 def timer(func):
-    """A timer for function"""
+    """Times how long a function takes to run"""
 
     def wrapper(*args, **kwargs):
         start = time.time()
@@ -98,7 +99,8 @@ def copy_to_bucket(filename, upload_bucket, subdir):
 
 
 def goa_file_extract(url, bucket):
-    """Check if uploaded, download, extract, to temp location upload to GCS
+    """
+    Check if uploaded, if not download, extract to temp location, upload to GCS
     and delete local temp files
     """
 
@@ -148,7 +150,7 @@ def goa_files(goa_url):
 
 @timer
 def run():
-    """ run from this script """
+    """This is the main function"""
 
     # Get the gzip files
     goa_url = 'http://current.geneontology.org/annotations/'
