@@ -32,27 +32,27 @@ import pandas as pd
 from google.cloud import storage
 
 
-# create Logger
+# Create Logger
 LOGGER = logging.getLogger('Gene Ontology Ingestion')
 
 # Set log level
 LOGGER.setLevel(logging.DEBUG)
 
-# create console handler and set level to debug
+# Create console handler and set level to debug
 CONSOLE_HANDLER = logging.StreamHandler()
 CONSOLE_HANDLER.setLevel(logging.DEBUG)
 
-# create formatter
+# Create formatter
 FORMATTER = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
 
-# add formatter to console handler
+# Add formatter to console handler
 CONSOLE_HANDLER.setFormatter(FORMATTER)
 
-# clear the handlers to stop repeat notifications
+# Clear the handlers to stop repeat notifications
 if LOGGER.hasHandlers():
     LOGGER.handlers.clear()
 
-# add console handler to Logger
+# Add console handler to Logger
 LOGGER.addHandler(CONSOLE_HANDLER)
 
 
@@ -96,7 +96,7 @@ def get_bucket_info(upload_bucket, subdir):
 def copy_to_bucket(bucket, subdir, filename):
     """Copy extracted gz file to GCS"""
 
-    # upload to GCS
+    # Upload to GCS
     blob = bucket.blob(subdir + '/' + filename)
     blob.upload_from_filename(filename)
 
@@ -138,7 +138,7 @@ def create_text_block(f_in, num_lines):
         if line_count > num_lines:
             break
 
-        # skip the line if it starts with and !
+        # Skip the line if it starts with and !
         if line[0] == '!':
             continue
 
@@ -152,7 +152,7 @@ def load_lines(file_name):
     """Write text block to Big Query table"""
     LOGGER.info("Writing text block to BigQuery")
 
-    # create article CSV
+    # Create article CSV
     csv_file = file_name
     column_names = ['db', 'db_object_id', 'db_object_symbol', 'qualifier',
                     'go_id', 'db_reference', 'evidence_code', 'with_or_from',
@@ -221,7 +221,7 @@ def main():
         to_go = 0
         locale.setlocale(locale.LC_ALL, 'en_US.utf8')
 
-        # create while-loop that writes extracted file in chunks
+        # Create a while-loop that writes the extracted file in chunks
         with open(extracted_file) as f_in:
             while lines_written < total_lines:
                 to_go = total_lines - lines_written
@@ -232,7 +232,7 @@ def main():
                 lines_written += len(open(current_file).readlines())
                 load_lines(current_file)
 
-                # Output some information about current status
+                # Output some information about the current status
                 countdown = locale.format_string("%d", to_go, grouping=True)
                 LOGGER.info("%d lines of %d written\n %s lines to go",
                             lines_written, total_lines, countdown)

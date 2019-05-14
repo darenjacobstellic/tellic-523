@@ -29,27 +29,27 @@ import urllib.request
 from google.cloud import storage
 
 
-# create Logger
+# Create Logger
 LOGGER = logging.getLogger('Gene Ontology Ingestion')
 
 # Set log level
 LOGGER.setLevel(logging.DEBUG)
 
-# create console handler and set level to debug
+# Create console handler and set level to debug
 CONSOLE_HANDLER = logging.StreamHandler()
 CONSOLE_HANDLER.setLevel(logging.DEBUG)
 
-# create formatter
+# Create formatter
 FORMATTER = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
 
-# add formatter to console handler
+# Add formatter to console handler
 CONSOLE_HANDLER.setFormatter(FORMATTER)
 
-# clear the handlers to stop repeat notifications
+# Clear the handlers to stop repeat notifications
 if LOGGER.hasHandlers():
     LOGGER.handlers.clear()
 
-# add console handler to Logger
+# Add console handler to Logger
 LOGGER.addHandler(CONSOLE_HANDLER)
 
 
@@ -109,7 +109,7 @@ def goa_file_extract(url, bucket):
     my_dir = SUB_DIR
     blob_list = get_bucket_info(bucket, my_dir)
 
-    # check if file has been uploaded
+    # Check if the file has been uploaded
     if my_dir + '/' + filename[:-3] in blob_list:
         LOGGER.info("File already exists, skipping download: %s",
                     filename[:-3])
@@ -141,7 +141,7 @@ def get_files(url):
 
 
 def goa_files(goa_url):
-    """ Return URL List of gz files """
+    """Return URL List of gz files"""
 
     all_files = get_files(goa_url)
     for file_name in all_files:
